@@ -27,13 +27,14 @@ public class BotController {
     }
     
     @RequestMapping("/updates")
-    public void getUpdates() throws IOException {
+    public Update[] getUpdates() throws IOException {
         UpdateResponse updateResponse = methods.getUpdates();
         if (updateResponse.isOk()) {
-            Update[] updates = updateResponse.getResult();
-            System.out.println("updates: " + updates.length);
+            System.out.println("updates: " + updateResponse.getResult().length);
+            return updateResponse.getResult();
         } else {
             System.out.println("updates ko");
+            return new Update[0];
         }
     }
 
