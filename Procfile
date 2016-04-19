@@ -1,1 +1,1 @@
-web: java -Dserver.port=$PORT -Dbot.api-key=$API_KEY -jar idealistabot-bot/target/idealistabot-0.0.1-SNAPSHOT.war
+web: java -Dserver.port=$PORT -Dbot.api-key=$API_KEY -jar idealistabot-bot/target/idealistabot-bot-0.0.1-SNAPSHOT.war
