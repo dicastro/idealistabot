@@ -1,4 +1,13 @@
-# Dmi Weather Telegram Bot
+# TODO
+
+* Include api-key in url of bot to anonymize
+* Improve command parsing (if no args received there is a StringOutOfBoundsException)
+
+# Configure telegram webhook
+
+https://api.telegram.org/bot{api-key}/setwebhook?url=https://idealistabot.herokuapp.com/idealistabot
+
+# Idealista Telegram Bot
 
 This Telegram bot can be used to get the weather forecast graphs for your desired city from www.dmi.dk.
 
