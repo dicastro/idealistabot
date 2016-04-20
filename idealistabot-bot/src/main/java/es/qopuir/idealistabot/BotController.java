@@ -2,11 +2,15 @@ package es.qopuir.idealistabot;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.qopuir.idealistabot.internal.CommandImpl;
 import es.qopuir.telegrambot.model.Message;
@@ -15,17 +19,24 @@ import es.qopuir.telegrambot.model.response.UpdateResponse;
 
 @RestController
 public class BotController {
-    @Autowired
-    private CommandHandler commandHandler;
+    private static final Logger LOG = LoggerFactory.getLogger(BotController.class);
+
+    public static final String IDEALISTABOT_URL = "/idealistabot";
     
     @Autowired
+    private CommandHandler commandHandler;
+
+    @Autowired
     private Methods methods;
+    
+    @Autowired
+    private ObjectMapper jacksonObjectMapper;
 
     @RequestMapping("/ping")
     public void test() throws IOException {
         System.out.println("ping ok");
     }
-    
+
     @RequestMapping("/updates")
     public Update[] getUpdates() throws IOException {
         UpdateResponse updateResponse = methods.getUpdates();
@@ -38,21 +49,22 @@ public class BotController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/idealistabot")
+    @RequestMapping(method = RequestMethod.POST, value = IDEALISTABOT_URL)
     public void idealistabotRequest(@RequestBody Update update) throws IOException {
+        LOG.trace("Received update {}", jacksonObjectMapper.writer().writeValueAsString(update));
         Command command = getCommand(update);
         commandHandler.handleCommand(update, command);
     }
 
     Command getCommand(Update update) {
         Message message = update.getMessage();
-        
+
         String text = message.getText().trim();
-        
+
         CommandImpl command = new CommandImpl();
-        
+
         int commandIndex = text.indexOf(" ");
-        
+
         if (commandIndex != -1) {
             command.setCommand(text.substring(0, commandIndex));
             command.setArgs(text.substring(commandIndex + 1));

@@ -1,11 +1,8 @@
 # TODO
 
-* Include api-key in url of bot to anonymize
-* Improve command parsing (if no args received there is a StringOutOfBoundsException)
-
 # Configure telegram webhook
 
-https://api.telegram.org/bot{api-key}/setwebhook?url=https://idealistabot.herokuapp.com/idealistabot
+https://api.telegram.org/bot{api-key}/setwebhook?url=https://idealistabot.herokuapp.com/{api-key}/idealistabot
 
 # Idealista Telegram Bot
 
