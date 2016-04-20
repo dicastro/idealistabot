@@ -24,7 +24,7 @@ public class Application extends SpringBootServletInitializer {
     private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     @Bean
-    public Filter shallowEtagHeaderFilter(BotProperties botProperties) {
+    public Filter idealistabotApikeyFilter(BotProperties botProperties) {
         return new OncePerRequestFilter() {
 
             @Override
@@ -43,6 +43,7 @@ public class Application extends SpringBootServletInitializer {
                         RequestDispatcher requestDispatcher = request.getRequestDispatcher(newUrl);
 
                         requestDispatcher.forward(request, response);
+                        return;
                     }
                 }
 
