@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import es.qopuir.idealistabot.Command;
 import es.qopuir.idealistabot.CommandHandler;
-import es.qopuir.idealistabot.Commands;
+import es.qopuir.idealistabot.CommandType;
 import es.qopuir.idealistabot.Methods;
 import es.qopuir.idealistabot.back.DmiCityModel;
 import es.qopuir.idealistabot.back.DmiRest;
@@ -30,12 +30,18 @@ public class CommandHandlerImpl implements CommandHandler {
 
     @Override
     public void handleCommand(Update update, Command command) throws MalformedURLException, IOException {
-        if (Commands.HELP.equalsIgnoreCase(command.getCommand()) || Commands.START.equalsIgnoreCase(command.getCommand())) {
-            sendIntroductionMessage(update);
-        } else {
-            handleWeatherCommand(update, command);
+        switch (command.getCommand()) {
+            case HELP:
+            case START:
+                sendIntroductionMessage(update);
+                break;
+            case UNKNOWN:
+                sendInformationMessage(update);
+                break;
+            default:
+                handleWeatherCommand(update, command);
+                break;
         }
-
     }
 
     private void sendIntroductionMessage(Update update) {
@@ -46,10 +52,19 @@ public class CommandHandlerImpl implements CommandHandler {
                 + System.lineSeparator() + System.lineSeparator() + "This bot project can be found at https://github.com/SimonScholz/telegram-bot");
     }
 
+    private void sendInformationMessage(Update update) {
+        methods.sendMessage(update.getMessage().getChat().getId(),
+                "Command received (" + update.getMessage().getText() + ") is not well formatted." + System.lineSeparator()
+                        + "We are sorry to not be able to process it." + System.lineSeparator() + "The following commands can be used:"
+                        + System.lineSeparator() + System.lineSeparator() + "/now cityname - showing the two day weather" + System.lineSeparator()
+                        + "/week cityname - showing furhter weather of the week" + System.lineSeparator() + System.lineSeparator()
+                        + "This bot project can be found at https://github.com/SimonScholz/telegram-bot");
+    }
+
     private void handleWeatherCommand(Update update, Command command) throws MalformedURLException, IOException {
         WeatherImageMode imageType = WeatherImageMode.NOW;
 
-        if (Commands.WEEK_WHEATHER.equalsIgnoreCase(command.getCommand())) {
+        if (command.getCommand() == CommandType.WEEK_WHEATHER) {
             imageType = WeatherImageMode.WEEK;
         }
 
@@ -63,9 +78,9 @@ public class CommandHandlerImpl implements CommandHandler {
 
         Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
         File file = createTempFile.toFile();
-        
+
         methods.sendPhoto(update.getMessage().getChat().getId(), weatherImageURL, file, "DMI weather in " + cityModel.getLabel());
-        
+
         file.delete();
     }
 }

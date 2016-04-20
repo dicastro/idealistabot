@@ -1,7 +1,7 @@
 package es.qopuir.idealistabot;
 
 public interface Command {
-    String getCommand();
+    CommandType getCommand();
 
     String getArgs();
 }

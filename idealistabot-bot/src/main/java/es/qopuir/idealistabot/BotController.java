@@ -44,20 +44,20 @@ public class BotController {
         commandHandler.handleCommand(update, command);
     }
 
-    private Command getCommand(Update update) {
+    Command getCommand(Update update) {
         Message message = update.getMessage();
         
-        String text = message.getText();
+        String text = message.getText().trim();
         
         CommandImpl command = new CommandImpl();
         
         int commandIndex = text.indexOf(" ");
         
-        if (text.length() > commandIndex) {
+        if (commandIndex != -1) {
             command.setCommand(text.substring(0, commandIndex));
             command.setArgs(text.substring(commandIndex + 1));
         } else {
-            command.setCommand(text.trim());
+            command.setCommand(text);
         }
 
         return command;
