@@ -51,7 +51,7 @@ public class BotController {
 
     @RequestMapping(method = RequestMethod.POST, value = IDEALISTABOT_URL)
     public void idealistabotRequest(@RequestBody Update update) throws IOException {
-        LOG.trace("Received update {}", jacksonObjectMapper.writer().writeValueAsString(update));
+        LOG.debug("Received update {}", jacksonObjectMapper.writer().writeValueAsString(update));
         Command command = getCommand(update);
         commandHandler.handleCommand(update, command);
     }
