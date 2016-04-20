@@ -34,7 +34,7 @@ public class BotController {
 
     @RequestMapping("/ping")
     public void test() throws IOException {
-        System.out.println("ping ok");
+        LOG.info("ping ok!");
     }
 
     @RequestMapping("/updates")
