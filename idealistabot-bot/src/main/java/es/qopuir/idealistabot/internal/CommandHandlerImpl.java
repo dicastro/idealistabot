@@ -10,6 +10,7 @@ import java.nio.file.attribute.FileAttribute;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import es.qopuir.idealistabot.Command;
 import es.qopuir.idealistabot.CommandHandler;
@@ -18,6 +19,8 @@ import es.qopuir.idealistabot.Methods;
 import es.qopuir.idealistabot.back.DmiCityModel;
 import es.qopuir.idealistabot.back.DmiRest;
 import es.qopuir.idealistabot.back.WeatherImageMode;
+import es.qopuir.idealistabot.model.Chat;
+import es.qopuir.idealistabot.repo.ChatRepository;
 import es.qopuir.telegrambot.model.Update;
 
 @Component
@@ -26,20 +29,36 @@ public class CommandHandlerImpl implements CommandHandler {
     private Methods methods;
 
     @Autowired
+    //TODO (dcastro): crear un servicio transaccional para acceder al repositorio
+    private ChatRepository chatRepository;
+
+    @Autowired
     private DmiRest dmiRest;
 
     @Override
     public void handleCommand(Update update, Command command) throws MalformedURLException, IOException {
         switch (command.getCommand()) {
             case HELP:
-            case START:
                 sendIntroductionMessage(update);
+                break;
+            case START:
+                if (!StringUtils.isEmpty(command.getArgs())) {
+                    // TODO (dcastro): validate received buildingId
+                    Chat chat = new Chat();
+                    chat.setChatId(update.getMessage().getChat().getId());
+                    chat.setBuildingId(command.getArgs().trim());
+
+                    chatRepository.save(chat);
+                }
+
+                sendIntroductionMessage(update);
+
                 break;
             case UNKNOWN:
                 sendInformationMessage(update);
                 break;
             default:
-                handleWeatherCommand(update, command);
+                handleIdealistaCommand(update, command);
                 break;
         }
     }
@@ -61,26 +80,56 @@ public class CommandHandlerImpl implements CommandHandler {
                         + "This bot project can be found at https://github.com/SimonScholz/telegram-bot");
     }
 
-    private void handleWeatherCommand(Update update, Command command) throws MalformedURLException, IOException {
-        WeatherImageMode imageType = WeatherImageMode.NOW;
+    private void handleIdealistaCommand(Update update, Command command) throws MalformedURLException, IOException {
+        switch (command.getCommand()) {
+            case INMUEBLE:
+                if (StringUtils.isEmpty(command.getArgs())) {
+                    if (chatRepository.exists(update.getMessage().getChat().getId())) {
+                        Chat chat = chatRepository.findOne(update.getMessage().getChat().getId());
 
-        if (command.getCommand() == CommandType.WEEK_WHEATHER) {
-            imageType = WeatherImageMode.WEEK;
+                        // TODO (dcastro): llamar al idealista para recuperar el título y la foto principal
+                        // TODO (dcastro): incluir en la respuesta la info recuperada del idealista
+                        // TODO (dcastro): recordar al final de la respuesta el comando para cambiar de inmueble
+                        methods.sendMessage(update.getMessage().getChat().getId(), "Consultando inmueble " + chat.getBuildingId());
+                    } else {
+                        methods.sendMessage(update.getMessage().getChat().getId(),
+                                "Todavia no se ha seleccionado ningún inmueble." + System.lineSeparator()
+                                        + "Para seleccionar un inmueble envíe el comando:" + System.lineSeparator()
+                                        + "/inmueble identificador - seleccionar un inmueble");
+                    }
+                } else {
+                    // TODO (dcastro): validate received inmuebleId
+                    Chat chat = new Chat();
+                    chat.setChatId(update.getMessage().getChat().getId());
+                    chat.setBuildingId(command.getArgs().trim());
+
+                    chatRepository.save(chat);
+
+                    methods.sendMessage(update.getMessage().getChat().getId(), "Inmueble modificado a " + command.getArgs().trim());
+                }
+
+                break;
+            default:
+                WeatherImageMode imageType = WeatherImageMode.NOW;
+
+                if (command.getCommand() == CommandType.WEEK_WHEATHER) {
+                    imageType = WeatherImageMode.WEEK;
+                }
+
+                DmiCityModel cityModel = dmiRest.findCityId(command.getArgs());
+                URL weatherImageURL = dmiRest.getWeatherImageURL(cityModel, imageType);
+
+                if (null == weatherImageURL) {
+                    methods.sendMessage(update.getMessage().getChat().getId(), "Please use /now + cityname or /week + cityname");
+                    return;
+                }
+
+                Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
+                File file = createTempFile.toFile();
+
+                methods.sendPhoto(update.getMessage().getChat().getId(), weatherImageURL, file, "DMI weather in " + cityModel.getLabel());
+
+                file.delete();
         }
-
-        DmiCityModel cityModel = dmiRest.findCityId(command.getArgs());
-        URL weatherImageURL = dmiRest.getWeatherImageURL(cityModel, imageType);
-
-        if (null == weatherImageURL) {
-            methods.sendMessage(update.getMessage().getChat().getId(), "Please use /now + cityname or /week + cityname");
-            return;
-        }
-
-        Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
-        File file = createTempFile.toFile();
-
-        methods.sendPhoto(update.getMessage().getChat().getId(), weatherImageURL, file, "DMI weather in " + cityModel.getLabel());
-
-        file.delete();
     }
 }

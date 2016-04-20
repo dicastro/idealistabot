@@ -3,7 +3,7 @@ package es.qopuir.idealistabot;
 import java.util.stream.Stream;
 
 public enum CommandType {
-    UNKNOWN("unknown"), START("/start"), HELP("/help"), TWO_DAY_WHEATHER("/now"), WEEK_WHEATHER("/week");
+    UNKNOWN("unknown"), START("/start"), HELP("/help"), TWO_DAY_WHEATHER("/now"), WEEK_WHEATHER("/week"), INMUEBLE("/inmueble");
 
     private final String text;
 
