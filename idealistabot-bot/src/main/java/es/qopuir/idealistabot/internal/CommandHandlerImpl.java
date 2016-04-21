@@ -111,7 +111,6 @@ public class CommandHandlerImpl implements CommandHandler {
                             Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
                             File file = createTempFile.toFile();
 
-                            methods.sendMessage(update.getMessage().getChat().getId(), idealistaBuilding.getTitle());
                             methods.sendPhoto(update.getMessage().getChat().getId(), idealistaBuilding.getMainPhotoUrl(), file,
                                     idealistaBuilding.getTitle());
                             methods.sendMessage(update.getMessage().getChat().getId(), "Para seleccionar otro inmueble, envie el comando:"
