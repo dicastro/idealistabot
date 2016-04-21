@@ -5,6 +5,7 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,9 +52,13 @@ public class BotController {
 
     @RequestMapping(method = RequestMethod.POST, value = IDEALISTABOT_URL)
     public void idealistabotRequest(@RequestBody Update update) throws IOException {
-        LOG.debug("Received update {}", jacksonObjectMapper.writer().writeValueAsString(update));
-        Command command = getCommand(update);
-        commandHandler.handleCommand(update, command);
+        if (update != null && update.getMessage() != null && !StringUtils.isEmpty(update.getMessage().getText())) {
+            LOG.debug("Received update -> {}", jacksonObjectMapper.writer().writeValueAsString(update));
+            Command command = getCommand(update);
+            commandHandler.handleCommand(update, command);
+        } else {
+            LOG.error("Received update without text -> {}", jacksonObjectMapper.writer().writeValueAsString(update));
+        }
     }
 
     Command getCommand(Update update) {
