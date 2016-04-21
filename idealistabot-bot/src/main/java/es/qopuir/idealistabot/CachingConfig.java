@@ -16,16 +16,20 @@ public class CachingConfig extends CachingConfigurerSupport {
     @Bean
     @Override
     public CacheManager cacheManager() {
-        CacheConfiguration cacheConfiguration = new CacheConfiguration();
-        cacheConfiguration.setName("dmiCityModelRequest");
-        cacheConfiguration.setMaxEntriesLocalHeap(1000);
+        CacheConfiguration dmiCitiModelRequestCacheConfiguration = new CacheConfiguration();
+        dmiCitiModelRequestCacheConfiguration.setName("dmiCityModelRequest");
+        dmiCitiModelRequestCacheConfiguration.setMaxEntriesLocalHeap(100);
+
+        CacheConfiguration idealistaBuildingModelRequestCacheConfiguration = new CacheConfiguration();
+        idealistaBuildingModelRequestCacheConfiguration.setName("idealistaBuildingModelRequest");
+        idealistaBuildingModelRequestCacheConfiguration.setMaxEntriesLocalHeap(100);
 
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
-        config.addCache(cacheConfiguration);
+        config.addCache(dmiCitiModelRequestCacheConfiguration);
+        config.addCache(idealistaBuildingModelRequestCacheConfiguration);
 
         net.sf.ehcache.CacheManager cacheManager = net.sf.ehcache.CacheManager.newInstance(config);
-        
+
         return new EhCacheCacheManager(cacheManager);
     }
-
 }

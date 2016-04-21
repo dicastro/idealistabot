@@ -8,6 +8,8 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import es.qopuir.idealistabot.back.model.DmiCityModel;
+
 @Component
 public class DmiRest {
 

@@ -16,9 +16,11 @@ import es.qopuir.idealistabot.Command;
 import es.qopuir.idealistabot.CommandHandler;
 import es.qopuir.idealistabot.CommandType;
 import es.qopuir.idealistabot.Methods;
-import es.qopuir.idealistabot.back.DmiCityModel;
 import es.qopuir.idealistabot.back.DmiRest;
+import es.qopuir.idealistabot.back.IdealistaRest;
 import es.qopuir.idealistabot.back.WeatherImageMode;
+import es.qopuir.idealistabot.back.model.DmiCityModel;
+import es.qopuir.idealistabot.back.model.IdealistaBuildingModel;
 import es.qopuir.idealistabot.model.Chat;
 import es.qopuir.idealistabot.repo.ChatRepository;
 import es.qopuir.telegrambot.model.Update;
@@ -29,11 +31,14 @@ public class CommandHandlerImpl implements CommandHandler {
     private Methods methods;
 
     @Autowired
-    //TODO (dcastro): crear un servicio transaccional para acceder al repositorio
+    // TODO (dcastro): crear un servicio transaccional para acceder al repositorio
     private ChatRepository chatRepository;
 
     @Autowired
     private DmiRest dmiRest;
+
+    @Autowired
+    private IdealistaRest idealistaRest;
 
     @Override
     public void handleCommand(Update update, Command command) throws MalformedURLException, IOException {
@@ -87,10 +92,24 @@ public class CommandHandlerImpl implements CommandHandler {
                     if (chatRepository.exists(update.getMessage().getChat().getId())) {
                         Chat chat = chatRepository.findOne(update.getMessage().getChat().getId());
 
-                        // TODO (dcastro): llamar al idealista para recuperar el título y la foto principal
-                        // TODO (dcastro): incluir en la respuesta la info recuperada del idealista
-                        // TODO (dcastro): recordar al final de la respuesta el comando para cambiar de inmueble
-                        methods.sendMessage(update.getMessage().getChat().getId(), "Consultando inmueble " + chat.getBuildingId());
+                        IdealistaBuildingModel idealistaBuilding = idealistaRest.findBuildingById(chat.getBuildingId());
+
+                        if (idealistaBuilding == null) {
+                            methods.sendMessage(update.getMessage().getChat().getId(),
+                                    "Lo lamentamos mucho, pero no hemos conseguido localizar ningún inmueble con el identificador facilitado ("
+                                            + chat.getBuildingId() + ")" + System.lineSeparator() + "¿Está seguro de que es correcto?");
+                        } else {
+                            Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
+                            File file = createTempFile.toFile();
+
+                            methods.sendMessage(update.getMessage().getChat().getId(), idealistaBuilding.getTitle());
+                            methods.sendPhoto(update.getMessage().getChat().getId(), idealistaBuilding.getMainPhotoUrl(), file,
+                                    idealistaBuilding.getTitle());
+                            methods.sendMessage(update.getMessage().getChat().getId(), "Para seleccionar otro inmueble, envíe el comando:"
+                                    + System.lineSeparator() + "/inmueble identificador - seleccionar un inmueble");
+
+                            file.delete();
+                        }
                     } else {
                         methods.sendMessage(update.getMessage().getChat().getId(),
                                 "Todavia no se ha seleccionado ningún inmueble." + System.lineSeparator()

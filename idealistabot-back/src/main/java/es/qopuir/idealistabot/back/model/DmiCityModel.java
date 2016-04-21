@@ -1,4 +1,4 @@
-package es.qopuir.idealistabot.back;
+package es.qopuir.idealistabot.back.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
