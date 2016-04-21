@@ -8,6 +8,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileAttribute;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -27,6 +29,8 @@ import es.qopuir.telegrambot.model.Update;
 
 @Component
 public class CommandHandlerImpl implements CommandHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(CommandHandlerImpl.class);
+
     @Autowired
     private Methods methods;
 
@@ -95,10 +99,15 @@ public class CommandHandlerImpl implements CommandHandler {
                         IdealistaBuildingModel idealistaBuilding = idealistaRest.findBuildingById(chat.getBuildingId());
 
                         if (idealistaBuilding == null) {
+                            LOG.debug("Idealista building {} not found", chat.getBuildingId());
+
                             methods.sendMessage(update.getMessage().getChat().getId(),
                                     "Lo lamentamos mucho, pero no hemos conseguido localizar ningún inmueble con el identificador facilitado ("
                                             + chat.getBuildingId() + ")" + System.lineSeparator() + "¿Está seguro de que es correcto?");
                         } else {
+                            LOG.debug("Idealista building {} found with (title, photo) -> ({}, {})", chat.getBuildingId(),
+                                    idealistaBuilding.getTitle(), idealistaBuilding.getMainPhotoUrl().toString());
+
                             Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
                             File file = createTempFile.toFile();
 
@@ -111,12 +120,16 @@ public class CommandHandlerImpl implements CommandHandler {
                             file.delete();
                         }
                     } else {
+                        LOG.debug("Idealista building not selected yet");
+
                         methods.sendMessage(update.getMessage().getChat().getId(),
                                 "Todavia no se ha seleccionado ningún inmueble." + System.lineSeparator()
                                         + "Para seleccionar un inmueble envíe el comando:" + System.lineSeparator()
                                         + "/inmueble identificador - seleccionar un inmueble");
                     }
                 } else {
+                    LOG.debug("Idealista building {} selected", command.getArgs().trim());
+
                     // TODO (dcastro): validate received inmuebleId
                     Chat chat = new Chat();
                     chat.setChatId(update.getMessage().getChat().getId());
