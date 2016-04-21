@@ -24,9 +24,9 @@ public class IdealistaRest {
         try {
             Document doc = Jsoup.connect("http://www.idealista.com/inmueble/" + buildingId).get();
 
-            String title = doc.select("#main-info h1 span").val();
+            String title = doc.select("#main-info h1 span").text();
 
-            String mainPhotoUrl = doc.select("#main-multimedia img").attr("src");
+            String mainPhotoUrl = doc.select("#main-multimedia div img").attr("src");
 
             IdealistaBuildingModel idealistaBuilding = new IdealistaBuildingModel();
             idealistaBuilding.setBuildingId(buildingId);
