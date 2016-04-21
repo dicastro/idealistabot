@@ -102,8 +102,8 @@ public class CommandHandlerImpl implements CommandHandler {
                             LOG.debug("Idealista building {} not found", chat.getBuildingId());
 
                             methods.sendMessage(update.getMessage().getChat().getId(),
-                                    "Lo lamentamos mucho, pero no hemos conseguido localizar ningún inmueble con el identificador facilitado ("
-                                            + chat.getBuildingId() + ")" + System.lineSeparator() + "¿Está seguro de que es correcto?");
+                                    "Lo lamentamos mucho, pero no hemos conseguido localizar ningun inmueble con el identificador facilitado ("
+                                            + chat.getBuildingId() + ")" + System.lineSeparator() + "¿Esta seguro de que es correcto?");
                         } else {
                             LOG.debug("Idealista building {} found with (title, photo) -> ({}, {})", chat.getBuildingId(),
                                     idealistaBuilding.getTitle(), idealistaBuilding.getMainPhotoUrl().toString());
@@ -114,7 +114,7 @@ public class CommandHandlerImpl implements CommandHandler {
                             methods.sendMessage(update.getMessage().getChat().getId(), idealistaBuilding.getTitle());
                             methods.sendPhoto(update.getMessage().getChat().getId(), idealistaBuilding.getMainPhotoUrl(), file,
                                     idealistaBuilding.getTitle());
-                            methods.sendMessage(update.getMessage().getChat().getId(), "Para seleccionar otro inmueble, envíe el comando:"
+                            methods.sendMessage(update.getMessage().getChat().getId(), "Para seleccionar otro inmueble, envie el comando:"
                                     + System.lineSeparator() + "/inmueble identificador - seleccionar un inmueble");
 
                             file.delete();
@@ -123,8 +123,8 @@ public class CommandHandlerImpl implements CommandHandler {
                         LOG.debug("Idealista building not selected yet");
 
                         methods.sendMessage(update.getMessage().getChat().getId(),
-                                "Todavia no se ha seleccionado ningún inmueble." + System.lineSeparator()
-                                        + "Para seleccionar un inmueble envíe el comando:" + System.lineSeparator()
+                                "Todavia no se ha seleccionado ningun inmueble." + System.lineSeparator()
+                                        + "Para seleccionar un inmueble envie el comando:" + System.lineSeparator()
                                         + "/inmueble identificador - seleccionar un inmueble");
                     }
                 } else {

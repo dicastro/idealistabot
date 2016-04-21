@@ -7,6 +7,8 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -27,6 +29,8 @@ import es.qopuir.telegrambot.model.response.UserResponse;
 
 @Component
 public class Methods {
+	private static final Logger LOG = LoggerFactory.getLogger(Methods.class);
+	
     private String apiBaseUrl;
     private RestTemplate restTemplate;
 
@@ -95,7 +99,13 @@ public class Methods {
             data.add("reply_markup", replyMarkup);
         }
 
-        return getRestTemplate().postForObject(getSendMessageURI(), data, MessageResponse.class);
+        try {
+        	return getRestTemplate().postForObject(getSendMessageURI(), data, MessageResponse.class);
+        } catch (Exception e) {
+        	LOG.error("Error sending message", e);
+        	
+        	return null;
+        }
     }
 
     public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile) throws IOException {
