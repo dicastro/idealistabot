@@ -26,7 +26,7 @@ public class IdealistaRest {
 
             String title = doc.select("#main-info h1 span").text();
 
-            String mainPhotoUrl = doc.select("#main-multimedia div img").attr("src");
+            String mainPhotoUrl = doc.select("meta[name='og:image'").attr("content");
 
             IdealistaBuildingModel idealistaBuilding = new IdealistaBuildingModel();
             idealistaBuilding.setBuildingId(buildingId);
