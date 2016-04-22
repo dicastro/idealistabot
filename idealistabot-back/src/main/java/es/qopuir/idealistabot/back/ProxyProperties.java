@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@ConfigurationProperties("proxy")
+@ConfigurationProperties(value = "proxy", ignoreInvalidFields = true)
 public class ProxyProperties {
     private boolean enabled = false;
     private String host;
