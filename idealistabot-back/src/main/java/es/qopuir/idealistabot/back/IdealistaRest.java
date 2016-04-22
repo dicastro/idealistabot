@@ -20,7 +20,7 @@ public class IdealistaRest {
     @Autowired
     private ProxyProperties proxyProperties;
 
-    //@Cacheable("idealistaBuildingHtmlRequest")
+    @Cacheable("idealistaBuildingHtmlRequest")
     public String getHtmlOfBuilding(String buildingId) {
         try {
             Connection connection = Jsoup.connect("http://www.idealista.com/inmueble/" + buildingId);
