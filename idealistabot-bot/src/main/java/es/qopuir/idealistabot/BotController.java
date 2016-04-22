@@ -5,7 +5,9 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.qopuir.idealistabot.back.IdealistaRest;
 import es.qopuir.idealistabot.internal.CommandImpl;
 import es.qopuir.telegrambot.model.Message;
 import es.qopuir.telegrambot.model.Update;
-import es.qopuir.telegrambot.model.response.UpdateResponse;
 
 @RestController
 public class BotController {
@@ -28,28 +30,21 @@ public class BotController {
     private CommandHandler commandHandler;
 
     @Autowired
-    private Methods methods;
+    private ObjectMapper jacksonObjectMapper;
     
     @Autowired
-    private ObjectMapper jacksonObjectMapper;
+    private IdealistaRest idealistaRest;
 
     @RequestMapping("/ping")
     public void test() throws IOException {
         LOG.info("ping ok!");
     }
 
-    @RequestMapping("/updates")
-    public Update[] getUpdates() throws IOException {
-        UpdateResponse updateResponse = methods.getUpdates();
-        if (updateResponse.isOk()) {
-            System.out.println("updates: " + updateResponse.getResult().length);
-            return updateResponse.getResult();
-        } else {
-            System.out.println("updates ko");
-            return new Update[0];
-        }
+    @RequestMapping(value = "/inmueble/{buildingId}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
+    public String idealistaWrapper(@PathVariable("buildingId") String buildingId) {
+        return idealistaRest.getHtmlOfBuilding(buildingId);
     }
-
+    
     @RequestMapping(method = RequestMethod.POST, value = IDEALISTABOT_URL)
     public void idealistabotRequest(@RequestBody Update update) throws IOException {
         if (update != null && update.getMessage() != null && !StringUtils.isEmpty(update.getMessage().getText())) {

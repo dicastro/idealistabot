@@ -23,10 +23,15 @@ public class CachingConfig extends CachingConfigurerSupport {
         CacheConfiguration idealistaBuildingModelRequestCacheConfiguration = new CacheConfiguration();
         idealistaBuildingModelRequestCacheConfiguration.setName("idealistaBuildingModelRequest");
         idealistaBuildingModelRequestCacheConfiguration.setMaxEntriesLocalHeap(100);
+        
+        CacheConfiguration idealistaBuildingHtmlRequestCacheConfiguration = new CacheConfiguration();
+        idealistaBuildingHtmlRequestCacheConfiguration.setName("idealistaBuildingHtmlRequest");
+        idealistaBuildingHtmlRequestCacheConfiguration.setMaxEntriesLocalHeap(50);
 
         net.sf.ehcache.config.Configuration config = new net.sf.ehcache.config.Configuration();
         config.addCache(dmiCitiModelRequestCacheConfiguration);
         config.addCache(idealistaBuildingModelRequestCacheConfiguration);
+        config.addCache(idealistaBuildingHtmlRequestCacheConfiguration);
 
         net.sf.ehcache.CacheManager cacheManager = net.sf.ehcache.CacheManager.newInstance(config);
 
