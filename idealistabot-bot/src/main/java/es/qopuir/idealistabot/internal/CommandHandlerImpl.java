@@ -1,12 +1,16 @@
 package es.qopuir.idealistabot.internal;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.FileAttribute;
+
+import javax.imageio.ImageIO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,6 +144,31 @@ public class CommandHandlerImpl implements CommandHandler {
                 }
 
                 break;
+            case CITA:
+            	String[] colTitles = new String[] { "LU-01", "MA-02", "MI-03", "JU-04", "VI-05", "SA-06", "DO-07" };
+            	String[] rowTitles = new String[] { "18:00", "18:30", "19:00", "19:00" };
+            	String[][] tableContent = new String[][] { {"/1"}, {}, {}, {} };
+            	
+            	GraphicTable graphicTable = new GraphicTable(colTitles, rowTitles, tableContent);
+            	
+            	Path timetableTmpDir = Paths.get("target", "tmp", "img");
+
+        		if (!timetableTmpDir.toFile().exists()) {
+        			timetableTmpDir.toFile().mkdirs();
+        		}
+            	
+            	Path timetableTempFilePath = Files.createTempFile(timetableTmpDir, "timetable-week", ".png", new FileAttribute[0]);
+            	File timetableTempFile = timetableTempFilePath.toFile();
+            	
+            	FileOutputStream os = new FileOutputStream(timetableTempFile);
+            	ImageIO.write(graphicTable.getImage(), "png", os);
+            	os.close();
+            	
+            	methods.sendPhoto(update.getMessage().getChat().getId(), timetableTempFile, "Horario de visitas");
+            	
+            	timetableTempFile.delete();
+            	
+            	break;
             default:
                 WeatherImageMode imageType = WeatherImageMode.NOW;
 
@@ -155,7 +184,13 @@ public class CommandHandlerImpl implements CommandHandler {
                     return;
                 }
 
-                Path createTempFile = Files.createTempFile("", ".png", new FileAttribute[0]);
+                Path tmpDir = Paths.get("target", "tmp", "img");
+
+        		if (!tmpDir.toFile().exists()) {
+        			tmpDir.toFile().mkdirs();
+        		}
+                
+                Path createTempFile = Files.createTempFile(tmpDir, "prediction", ".png", new FileAttribute[0]);
                 File file = createTempFile.toFile();
 
                 methods.sendPhoto(update.getMessage().getChat().getId(), weatherImageURL, file, "DMI weather in " + cityModel.getLabel());

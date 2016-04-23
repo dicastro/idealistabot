@@ -30,137 +30,176 @@ import es.qopuir.telegrambot.model.response.UserResponse;
 @Component
 public class Methods {
 	private static final Logger LOG = LoggerFactory.getLogger(Methods.class);
-	
-    private String apiBaseUrl;
-    private RestTemplate restTemplate;
 
-    @Autowired
-    public Methods(BotProperties botProperties) {
-        apiBaseUrl = "https://api.telegram.org/bot" + botProperties.getApiKey() + "/";
-    }
+	private String apiBaseUrl;
+	private RestTemplate restTemplate;
 
-    protected RestTemplate getRestTemplate() {
-        if (null == restTemplate) {
-            restTemplate = new RestTemplate();
-        }
+	@Autowired
+	public Methods(BotProperties botProperties) {
+		apiBaseUrl = "https://api.telegram.org/bot" + botProperties.getApiKey() + "/";
+	}
 
-        return restTemplate;
-    }
+	protected RestTemplate getRestTemplate() {
+		if (null == restTemplate) {
+			restTemplate = new RestTemplate();
+		}
 
-    protected URI getSendMessageURI() {
-        return URI.create(apiBaseUrl + "sendMessage");
-    }
+		return restTemplate;
+	}
 
-    protected URI getSendPhotoURI() {
-        return URI.create(apiBaseUrl + "sendPhoto");
-    }
+	protected URI getSendMessageURI() {
+		return URI.create(apiBaseUrl + "sendMessage");
+	}
 
-    protected URI getUpdatesURI() {
-        return URI.create(apiBaseUrl + "getUpdates");
-    }
+	protected URI getSendPhotoURI() {
+		return URI.create(apiBaseUrl + "sendPhoto");
+	}
 
-    public UserResponse getMe() {
-        return getRestTemplate().getForObject(URI.create(apiBaseUrl + "getMe"), UserResponse.class);
-    }
+	protected URI getUpdatesURI() {
+		return URI.create(apiBaseUrl + "getUpdates");
+	}
 
-    public UpdateResponse getUpdates() {
-        return getRestTemplate().getForObject(getUpdatesURI(), UpdateResponse.class);
-    }
+	public UserResponse getMe() {
+		return getRestTemplate().getForObject(URI.create(apiBaseUrl + "getMe"), UserResponse.class);
+	}
 
-    public MessageResponse sendMessage(int chatId, String text) {
-        return sendMessageInternal(chatId, text, false, 0, null);
-    }
+	public UpdateResponse getUpdates() {
+		return getRestTemplate().getForObject(getUpdatesURI(), UpdateResponse.class);
+	}
 
-    public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId,
-            ReplyKeyboardMarkup replyMarkup) {
-        return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendMessage(int chatId, String text) {
+		return sendMessageInternal(chatId, text, false, 0, null);
+	}
 
-    public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId, ReplyKeyboardHide replyMarkup) {
-        return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId,
+			ReplyKeyboardMarkup replyMarkup) {
+		return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
+	}
 
-    public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId, ForceReply replyMarkup) {
-        return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId,
+			ReplyKeyboardHide replyMarkup) {
+		return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
+	}
 
-    private MessageResponse sendMessageInternal(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId, Object replyMarkup) {
-        MultiValueMap<String, Object> data = new LinkedMultiValueMap<String, Object>();
+	public MessageResponse sendMessage(int chatId, String text, boolean disableWebPagePreview, int replyToMessageId,
+			ForceReply replyMarkup) {
+		return sendMessageInternal(chatId, text, disableWebPagePreview, replyToMessageId, replyMarkup);
+	}
 
-        data.add("chat_id", chatId);
-        data.add("text", text);
-        data.add("disable_web_page_preview", disableWebPagePreview);
+	private MessageResponse sendMessageInternal(int chatId, String text, boolean disableWebPagePreview,
+			int replyToMessageId, Object replyMarkup) {
+		MultiValueMap<String, Object> data = new LinkedMultiValueMap<String, Object>();
 
-        if (replyToMessageId != 0) {
-            data.add("reply_to_message_id", replyToMessageId);
-        }
+		data.add("chat_id", chatId);
+		data.add("text", text);
+		data.add("disable_web_page_preview", disableWebPagePreview);
 
-        if (replyMarkup != null) {
-            data.add("reply_markup", replyMarkup);
-        }
+		if (replyToMessageId != 0) {
+			data.add("reply_to_message_id", replyToMessageId);
+		}
 
-        try {
-        	return getRestTemplate().postForObject(getSendMessageURI(), data, MessageResponse.class);
-        } catch (Exception e) {
-        	LOG.error("Error sending message", e);
-        	
-        	return null;
-        }
-    }
+		if (replyMarkup != null) {
+			data.add("reply_markup", replyMarkup);
+		}
 
-    public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile) throws IOException {
-        return sendPhotoInternal(chatId, imageUrl, tempFile, null, 0, null);
-    }
+		try {
+			return getRestTemplate().postForObject(getSendMessageURI(), data, MessageResponse.class);
+		} catch (Exception e) {
+			LOG.error("Error sending message", e);
 
-    public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption) throws IOException {
-        return sendPhotoInternal(chatId, imageUrl, tempFile, caption, 0, null);
-    }
+			return null;
+		}
+	}
 
-    public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId, ReplyKeyboardMarkup replyMarkup)
-            throws IOException {
-        return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile) throws IOException {
+		return sendPhotoInternal(chatId, imageUrl, tempFile, null, 0, null);
+	}
 
-    public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId, ReplyKeyboardHide replyMarkup)
-            throws IOException {
-        return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption) throws IOException {
+		return sendPhotoInternal(chatId, imageUrl, tempFile, caption, 0, null);
+	}
 
-    public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId, ForceReply replyMarkup)
-            throws IOException {
-        return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
-    }
+	public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId,
+			ReplyKeyboardMarkup replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
+	}
 
-    private MessageResponse sendPhotoInternal(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId, Object replyMarkup)
-            throws IOException {
-        HttpEntity<Object> request = createImageRequest(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
+	public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId,
+			ReplyKeyboardHide replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
+	}
 
-        return getRestTemplate().postForObject(getSendPhotoURI(), request, MessageResponse.class);
-    }
+	public MessageResponse sendPhoto(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId,
+			ForceReply replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageUrl, tempFile, caption, replyToMessageId, replyMarkup);
+	}
 
-    private HttpEntity<Object> createImageRequest(int chatId, URL imageUrl, File tempFile, String caption, int replyToMessageId, Object replyMarkup)
-            throws IOException {
-        Files.copy(imageUrl.openStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+	private MessageResponse sendPhotoInternal(int chatId, URL imageUrl, File tempFile, String caption,
+			int replyToMessageId, Object replyMarkup) throws IOException {
+		HttpEntity<Object> request = createImageRequest(chatId, imageUrl, tempFile, caption, replyToMessageId,
+				replyMarkup);
 
-        Resource photoResource = new FileSystemResource(tempFile);
+		return getRestTemplate().postForObject(getSendPhotoURI(), request, MessageResponse.class);
+	}
 
-        MultiValueMap<String, Object> data = new LinkedMultiValueMap<String, Object>();
-        
-        data.add("chat_id", chatId);
-        data.add("photo", photoResource);
-        data.add("caption", caption);
-        
-        if (replyToMessageId != 0) {
-            data.add("reply_to_message_id", replyToMessageId);
-        }
-        
-        if (replyMarkup != null) {
-            data.add("reply_markup", replyMarkup);
-        }
+	public MessageResponse sendPhoto(int chatId, File imageFile) throws IOException {
+		return sendPhotoInternal(chatId, imageFile, null, 0, null);
+	}
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        
-        return new HttpEntity<Object>(data, headers);
-    }
+	public MessageResponse sendPhoto(int chatId, File imageFile, String caption) throws IOException {
+		return sendPhotoInternal(chatId, imageFile, caption, 0, null);
+	}
+
+	public MessageResponse sendPhoto(int chatId, File imageFile, String caption, int replyToMessageId,
+			ReplyKeyboardMarkup replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageFile, caption, replyToMessageId, replyMarkup);
+	}
+
+	public MessageResponse sendPhoto(int chatId, File imageFile, String caption, int replyToMessageId,
+			ReplyKeyboardHide replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageFile, caption, replyToMessageId, replyMarkup);
+	}
+
+	public MessageResponse sendPhoto(int chatId, File imageFile, String caption, int replyToMessageId,
+			ForceReply replyMarkup) throws IOException {
+		return sendPhotoInternal(chatId, imageFile, caption, replyToMessageId, replyMarkup);
+	}
+
+	private MessageResponse sendPhotoInternal(int chatId, File imageFile, String caption, int replyToMessageId,
+			Object replyMarkup) throws IOException {
+		HttpEntity<Object> request = createImageRequest(chatId, imageFile, caption, replyToMessageId, replyMarkup);
+
+		return getRestTemplate().postForObject(getSendPhotoURI(), request, MessageResponse.class);
+	}
+
+	private HttpEntity<Object> createImageRequest(int chatId, URL imageUrl, File tempFile, String caption,
+			int replyToMessageId, Object replyMarkup) throws IOException {
+		Files.copy(imageUrl.openStream(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+		return createImageRequest(chatId, tempFile, caption, replyToMessageId, replyMarkup);
+	}
+
+	private HttpEntity<Object> createImageRequest(int chatId, File imageFile, String caption, int replyToMessageId,
+			Object replyMarkup) throws IOException {
+		Resource photoResource = new FileSystemResource(imageFile);
+
+		MultiValueMap<String, Object> data = new LinkedMultiValueMap<String, Object>();
+
+		data.add("chat_id", chatId);
+		data.add("photo", photoResource);
+		data.add("caption", caption);
+
+		if (replyToMessageId != 0) {
+			data.add("reply_to_message_id", replyToMessageId);
+		}
+
+		if (replyMarkup != null) {
+			data.add("reply_markup", replyMarkup);
+		}
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+		return new HttpEntity<Object>(data, headers);
+	}
 }

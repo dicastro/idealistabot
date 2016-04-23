@@ -1,5 +1,11 @@
 # TODO
 
+* Hacer pruebas con los botones del telegram
+* Crear modelo de datos para la agenda
+* Crear capa de servicios para acceso al modelo de datos
+* Configurar transacciones de acceso a datos
+* Ver cómo hacer tests
+
 # Configure telegram webhook
 
 https://api.telegram.org/bot{api-key}/setwebhook?url=https://idealistabot.herokuapp.com/{api-key}/idealistabot
