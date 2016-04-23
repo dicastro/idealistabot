@@ -36,7 +36,7 @@ public class BotController {
     private IdealistaRest idealistaRest;
 
     @RequestMapping("/ping")
-    public void test() throws IOException {
+    public void test() {
         LOG.info("ping ok!");
     }
 
